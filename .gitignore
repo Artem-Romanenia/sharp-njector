@@ -1,0 +1,14 @@
+# Visual Studio 2015 cache/options directory
+/.vs/
+
+#Visual Studio Files
+*.user
+*.csproj.user
+
+# Build results
+/*/bin/
+/*/obj/
+
+# Nuget
+/packages/
+*.user
