@@ -18,13 +18,14 @@ namespace SharpNjector.CustomTools.Base
 
         public int Generate(string inputFilePath, string inputFileContents, string defaultNamespace, IntPtr[] outputFileContents, out uint outputSize, IVsGeneratorProgress generateProgress)
         {
-            byte[] outputBytes = Encoding.UTF8.GetBytes(inputFileContents.ToUpperInvariant());
+            byte[] outputBytes = Encoding.UTF8.GetBytes(inputFileContents);
             if (outputBytes != null)
             {
                 outputSize = (uint)outputBytes.Length;
                 outputFileContents[0] = Marshal.AllocCoTaskMem(outputBytes.Length);
                 Marshal.Copy(outputBytes, 0, outputFileContents[0], outputBytes.Length);
             }
+            else
             {
                 outputFileContents[0] = IntPtr.Zero;
                 outputSize = 0;
