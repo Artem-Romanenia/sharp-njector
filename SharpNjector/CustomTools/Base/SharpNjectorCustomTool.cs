@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Build.Evaluation;
@@ -16,22 +15,22 @@ namespace SharpNjector.CustomTools.Base
 {
     public abstract class SharpNjectorCustomTool : IVsSingleFileGenerator
     {
-        private const string Prefix = "#nject";
+        private const string NjectKeyWord = "#nject";
+        private const string NjectUsingKeyWord = "#nject-using";
         private const string ClassFormat = @"
-using System;
-using SharpNjector.CustomTools.Base;
+{0}
 
 namespace SharpNjector
 {{
-    public class ExpressionEvaluator : MarshalByRefObject, IExpressionEvaluator
+    public class ExpressionEvaluator : System.MarshalByRefObject, SharpNjector.CustomTools.Base.IExpressionEvaluator
     {{
-        private readonly Func<object>[] _expressions;
+        private readonly System.Func<object>[] _expressions;
 
         public ExpressionEvaluator()
         {{
-            _expressions = new Func<object>[]
+            _expressions = new System.Func<object>[]
             {{
-                {0}
+                {1}
             }};
         }}
 
@@ -45,6 +44,7 @@ namespace SharpNjector
     }}
 }}";
         private const string PropertyFormat = @"() => {{ return {0}; }},";
+        private const string UsingFormat = "using {0};";
 
         private EnvDTE.DTE _dte;
 
@@ -63,10 +63,6 @@ namespace SharpNjector
 
         public int Generate(string inputFilePath, string inputFileContents, string defaultNamespace, IntPtr[] outputFileContents, out uint outputSize, IVsGeneratorProgress generateProgress)
         {
-            var ads = new AppDomainSetup();
-            ads.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
-            ads.ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
-
             var assemblyPaths = GetAssemblyPaths();
 
             using (var domainWrapper = new DomainWrapper())
@@ -77,9 +73,10 @@ namespace SharpNjector
 
                 string outputFormat;
                 IList<string> injectionExpressions;
-                Parse(inputFileContents, out outputFormat, out injectionExpressions);
+                IList<string> usings;
+                Parse(inputFileContents, out outputFormat, out injectionExpressions, out usings);
 
-                var evaluatedExpressions = EvaluateExpressions(injectionExpressions, metadataReferences, domainWrapper);
+                var evaluatedExpressions = EvaluateExpressions(injectionExpressions, usings, metadataReferences, domainWrapper);
 
                 var outputBytes = Encoding.UTF8.GetBytes(string.Format(outputFormat, evaluatedExpressions.ToArray()));
                 if (outputBytes.Length > 0)
@@ -161,17 +158,43 @@ namespace SharpNjector
             return references;
         }
 
-        private void Parse(string input, out string outputFormat, out IList<string> injectionExpressions)
+        private void Parse(string input, out string outputFormat, out IList<string> injectionExpressions, out IList<string> usings)
         {
             injectionExpressions = new List<string>();
-            var output = new StringBuilder();
+            usings = new List<string>();
 
+            var output = new StringBuilder();
 
             for (var i = 0; i < input.Length; i++)
             {
-                if (input.Length >= i + Prefix.Length && input.Substring(i, Prefix.Length) == Prefix)
+                if (input.Length >= i + NjectUsingKeyWord.Length && input.Substring(i, NjectUsingKeyWord.Length) == NjectUsingKeyWord)
                 {
-                    i += Prefix.Length;
+                    i += NjectUsingKeyWord.Length;
+
+                    var usingStr = new StringBuilder();
+
+                    var depth = 0;
+                    do
+                    {
+                        if (input[i] == '(')
+                            depth++;
+                        else if (input[i] == ')')
+                            depth--;
+                        else
+                            usingStr.Append(input[i]);
+
+                        if (depth > 0)
+                            i++;
+                    } while (depth > 0 && i < input.Length);
+
+                    if (input.Substring(i + 1, Environment.NewLine.Length) == Environment.NewLine)
+                        i += Environment.NewLine.Length;
+
+                    usings.Add(usingStr.ToString());
+                }
+                else if (input.Length >= i + NjectKeyWord.Length && input.Substring(i, NjectKeyWord.Length) == NjectKeyWord)
+                {
+                    i += NjectKeyWord.Length;
                     var expression = new StringBuilder();
 
                     int depth = 0;
@@ -205,14 +228,19 @@ namespace SharpNjector
             outputFormat = output.ToString();
         }
 
-        private IList<string> EvaluateExpressions(IList<string> expressions, IList<MetadataReference> references, DomainWrapper domainWrapper)
+        private IList<string> EvaluateExpressions(IList<string> expressions, IList<string> usings, IList<MetadataReference> references, DomainWrapper domainWrapper)
         {
             var propertiesFormat = new StringBuilder();
 
             foreach (var expression in expressions)
                 propertiesFormat.AppendFormat(PropertyFormat, expression);
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(string.Format(ClassFormat, propertiesFormat.ToString()));
+            var usingsString = new StringBuilder();
+
+            foreach (var usingStr in usings)
+                usingsString.AppendFormat(UsingFormat, usingStr).AppendLine();
+
+            var syntaxTree = CSharpSyntaxTree.ParseText(string.Format(ClassFormat, usingsString, propertiesFormat));
 
             var assemblyName = Path.GetRandomFileName();
 

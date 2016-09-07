@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -11,12 +12,14 @@ namespace SharpNjector
 
         public DomainWrapper()
         {
-            var domainSetup = new AppDomainSetup();
-            domainSetup.LoaderOptimization = LoaderOptimization.MultiDomainHost;
-            domainSetup.ApplicationBase = Environment.CurrentDirectory;
-
-            _domain = AppDomain.CreateDomain("SharnNjector", null, domainSetup);
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+
+            var setup = new AppDomainSetup()
+            {
+                ApplicationBase = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location)
+            };
+
+            _domain = AppDomain.CreateDomain("SharnNjector", null, setup);
 
             var domainProxyType = typeof(DomainProxy);
             _domainProxy = (DomainProxy)_domain.CreateInstanceAndUnwrap(domainProxyType.Assembly.FullName, domainProxyType.FullName);
@@ -51,8 +54,6 @@ namespace SharpNjector
 
         public void Dispose()
         {
-            _domainProxy.Detach();
-            _domainProxy = null;
             AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
             AppDomain.Unload(_domain);
         }

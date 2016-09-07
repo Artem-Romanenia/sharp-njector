@@ -1,6 +1,5 @@
 ﻿using SharpNjector.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -10,7 +9,7 @@ namespace SharpNjector
     {
         public DomainProxy()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly; //TODO: Find out if unsubscription must take place.
         }
 
         public string LoadAssembly(byte[] assemblyBytes)
@@ -22,7 +21,7 @@ namespace SharpNjector
 
         public string LoadAssembly(string assemblyPath)
         {
-            var assembly = Assembly.LoadFile(assemblyPath);
+            var assembly = Assembly.LoadFrom(assemblyPath);
 
             return assembly.FullName;
         }
@@ -55,10 +54,10 @@ namespace SharpNjector
             return obj;
         }
 
-        public void Detach()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
-        }
+        //public void Dispose()
+        //{
+        //    AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
+        //}
 
         private Assembly ResolveAssembly(object sender, ResolveEventArgs e)
         {
