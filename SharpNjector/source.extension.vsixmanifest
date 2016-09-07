@@ -3,9 +3,10 @@
   <Metadata>
     <Identity Id="SharpNjector.ArtemRomanenia.048f0b9b-200d-4706-a693-0bcac4fc6b08" Version="0.1" Language="en-US" Publisher="Artem Romanenia" />
     <DisplayName>SharpNjector</DisplayName>
-    <Description xml:space="preserve">SharpNjector lets you inject bits of C# code into static text files e.g. *.js, *.css, *.txt etc.</Description>
+    <Description xml:space="preserve">SharpNjector lets you inject bits of C# code into static text files like *.js, *.css, *.txt etc.</Description>
     <MoreInfo>https://github.com/Artem-Romanenia/sharp-njector</MoreInfo>
     <License>LICENSE.txt</License>
+    <Tags>C#, Javascript, Js, injection</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />

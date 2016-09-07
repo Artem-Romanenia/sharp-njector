@@ -10,6 +10,7 @@ using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.Shell;
+using SharpNjector.Properties;
 
 namespace SharpNjector.CustomTools.Base
 {
@@ -17,38 +18,10 @@ namespace SharpNjector.CustomTools.Base
     {
         private const string NjectKeyWord = "#nject";
         private const string NjectUsingKeyWord = "#nject-using";
-        private const string ClassFormat = @"
-{0}
 
-namespace SharpNjector
-{{
-    public class ExpressionEvaluator : System.MarshalByRefObject, SharpNjector.CustomTools.Base.IExpressionEvaluator
-    {{
-        private readonly System.Func<object>[] _expressions;
+        private readonly EnvDTE.DTE _dte;
 
-        public ExpressionEvaluator()
-        {{
-            _expressions = new System.Func<object>[]
-            {{
-                {1}
-            }};
-        }}
-
-        public string this[int i]
-        {{
-            get
-            {{
-                return _expressions[i]().ToString();
-            }}
-        }}
-    }}
-}}";
-        private const string PropertyFormat = @"() => {{ return {0}; }},";
-        private const string UsingFormat = "using {0};";
-
-        private EnvDTE.DTE _dte;
-
-        public SharpNjectorCustomTool()
+        protected SharpNjectorCustomTool()
         {
             _dte = (EnvDTE.DTE)Package.GetGlobalService(typeof(EnvDTE.DTE));
         }
@@ -99,56 +72,46 @@ namespace SharpNjector
         {
             var assemblyPaths = new List<string>();
 
-            using (var projectCollection = new ProjectCollection())
+            var project = _dte.SelectedItems.Item(1).ProjectItem.ContainingProject; //Item() is one-based
+            var projectProperties = new Project(project.FileName).Properties;
+
+            var path = Path.Combine(
+                projectProperties.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,
+                projectProperties.First(p => p.Name == "OutputPath").EvaluatedValue,
+                projectProperties.First(p => p.Name == "TargetFileName").EvaluatedValue);
+
+            assemblyPaths.Add(path);
+
+            foreach (VSLangProj.Reference reference in (project.Object as VSLangProj.VSProject).References)
             {
-                var project = _dte.ActiveDocument.ProjectItem.ContainingProject;
-                var projectBuildInfo = new Project(
-                    project.FileName,
-                    null,
-                    null,
-                    projectCollection,
-                    ProjectLoadSettings.Default).Properties;
-
-                var path = Path.Combine(projectBuildInfo.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,
-                    projectBuildInfo.First(p => p.Name == "OutputPath").EvaluatedValue,
-                    projectBuildInfo.First(p => p.Name == "TargetFileName").EvaluatedValue);
-
-                assemblyPaths.Add(path);
-
-                foreach (VSLangProj.Reference reference in (project.Object as VSLangProj.VSProject).References)
+                if (reference.SourceProject == null)
                 {
-                    if (reference.SourceProject == null && !assemblyPaths.Contains(reference.Path))
-                    {
+                    if (!assemblyPaths.Contains(reference.Path))
                         assemblyPaths.Add(reference.Path);
-                    }
-                    else
-                    {
-                        var innerProjectBuildInfo = new Project(
-                            reference.SourceProject.FileName,
-                            null,
-                            null,
-                            projectCollection,
-                            ProjectLoadSettings.Default).Properties;
+                }
+                else
+                {
+                    var referencedProjectProperties = new Project(reference.SourceProject.FileName).Properties;
 
-                        var innerPath = Path.Combine(innerProjectBuildInfo.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,
-                            innerProjectBuildInfo.First(p => p.Name == "OutputPath").EvaluatedValue,
-                            innerProjectBuildInfo.First(p => p.Name == "TargetFileName").EvaluatedValue);
+                    var innerPath = Path.Combine(
+                            referencedProjectProperties.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,
+                            referencedProjectProperties.First(p => p.Name == "OutputPath").EvaluatedValue,
+                            referencedProjectProperties.First(p => p.Name == "TargetFileName").EvaluatedValue);
 
-                        assemblyPaths.Add(innerPath);
-                    }
+                    assemblyPaths.Add(innerPath);
                 }
             }
 
             return assemblyPaths;
         }
 
-        private void LoadAssembliesToDomain(DomainWrapper domainWrapper, IList<string> assemblyPaths)
+        private static void LoadAssembliesToDomain(DomainWrapper domainWrapper, IList<string> assemblyPaths)
         {
             foreach (var assemblyPath in assemblyPaths)
                 domainWrapper.LoadAssembly(assemblyPath);
         }
 
-        private IList<MetadataReference> GetReferences(IList<string> assemblyPaths)
+        private static IList<MetadataReference> GetReferences(IList<string> assemblyPaths)
         {
             var references = assemblyPaths.Select(a => (MetadataReference)MetadataReference.CreateFromFile(a)).ToList();
 
@@ -158,7 +121,7 @@ namespace SharpNjector
             return references;
         }
 
-        private void Parse(string input, out string outputFormat, out IList<string> injectionExpressions, out IList<string> usings)
+        private static void Parse(string input, out string outputFormat, out IList<string> injectionExpressions, out IList<string> usings)
         {
             injectionExpressions = new List<string>();
             usings = new List<string>();
@@ -228,19 +191,19 @@ namespace SharpNjector
             outputFormat = output.ToString();
         }
 
-        private IList<string> EvaluateExpressions(IList<string> expressions, IList<string> usings, IList<MetadataReference> references, DomainWrapper domainWrapper)
+        private static IList<string> EvaluateExpressions(IList<string> expressions, IList<string> usings, IList<MetadataReference> references, DomainWrapper domainWrapper)
         {
             var propertiesFormat = new StringBuilder();
 
             foreach (var expression in expressions)
-                propertiesFormat.AppendFormat(PropertyFormat, expression);
+                propertiesFormat.AppendFormat(Resources.PropertyFormat, expression);
 
             var usingsString = new StringBuilder();
 
             foreach (var usingStr in usings)
-                usingsString.AppendFormat(UsingFormat, usingStr).AppendLine();
+                usingsString.AppendFormat(Resources.UsingFormat, usingStr).AppendLine();
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(string.Format(ClassFormat, usingsString, propertiesFormat));
+            var syntaxTree = CSharpSyntaxTree.ParseText(string.Format(Resources.ExpressionEvaluatorFormat, usingsString, propertiesFormat));
 
             var assemblyName = Path.GetRandomFileName();
 
