@@ -144,6 +144,12 @@ namespace SharpNjector
     }}
 }}</value>
   </data>
+  <data name="NjectKeyWord" xml:space="preserve">
+    <value>#nject</value>
+  </data>
+  <data name="NjectUsingKeyWord" xml:space="preserve">
+    <value>#nject-using</value>
+  </data>
   <data name="PropertyFormat" xml:space="preserve">
     <value>() =&gt; {{ return {0}; }},</value>
   </data>

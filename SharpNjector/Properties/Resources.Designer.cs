@@ -81,12 +81,29 @@ namespace SharpNjector.Properties {
         ///        {{
         ///            get
         ///            {{
-        ///                return _expressions[i]().ToString();
-        ///   [rest of string was truncated]&quot;;.
+        ///                return _expressions [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ExpressionEvaluatorFormat {
             get {
                 return ResourceManager.GetString("ExpressionEvaluatorFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #nject.
+        /// </summary>
+        internal static string NjectKeyWord {
+            get {
+                return ResourceManager.GetString("NjectKeyWord", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #nject-using.
+        /// </summary>
+        internal static string NjectUsingKeyWord {
+            get {
+                return ResourceManager.GetString("NjectUsingKeyWord", resourceCulture);
             }
         }
         

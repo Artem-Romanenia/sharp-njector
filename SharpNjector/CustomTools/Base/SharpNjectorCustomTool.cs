@@ -16,9 +16,6 @@ namespace SharpNjector.CustomTools.Base
 {
     public abstract class SharpNjectorCustomTool : IVsSingleFileGenerator
     {
-        private const string NjectKeyWord = "#nject";
-        private const string NjectUsingKeyWord = "#nject-using";
-
         private readonly EnvDTE.DTE _dte;
 
         protected SharpNjectorCustomTool()
@@ -123,6 +120,9 @@ namespace SharpNjector.CustomTools.Base
 
         private static void Parse(string input, out string outputFormat, out IList<string> injectionExpressions, out IList<string> usings)
         {
+            var njectUsingKeywordLength = Resources.NjectUsingKeyWord.Length;
+            var njectKeywordLength = Resources.NjectKeyWord.Length;
+
             injectionExpressions = new List<string>();
             usings = new List<string>();
 
@@ -130,9 +130,9 @@ namespace SharpNjector.CustomTools.Base
 
             for (var i = 0; i < input.Length; i++)
             {
-                if (input.Length >= i + NjectUsingKeyWord.Length && input.Substring(i, NjectUsingKeyWord.Length) == NjectUsingKeyWord)
+                if (input.Length >= i + njectUsingKeywordLength && input.Substring(i, njectUsingKeywordLength) == Resources.NjectUsingKeyWord)
                 {
-                    i += NjectUsingKeyWord.Length;
+                    i += njectUsingKeywordLength;
 
                     var usingStr = new StringBuilder();
 
@@ -155,9 +155,9 @@ namespace SharpNjector.CustomTools.Base
 
                     usings.Add(usingStr.ToString());
                 }
-                else if (input.Length >= i + NjectKeyWord.Length && input.Substring(i, NjectKeyWord.Length) == NjectKeyWord)
+                else if (input.Length >= i + njectKeywordLength && input.Substring(i, njectKeywordLength) == Resources.NjectKeyWord)
                 {
-                    i += NjectKeyWord.Length;
+                    i += njectKeywordLength;
                     var expression = new StringBuilder();
 
                     int depth = 0;

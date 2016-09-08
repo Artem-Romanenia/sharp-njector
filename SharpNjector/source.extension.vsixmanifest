@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="SharpNjector.ArtemRomanenia.048f0b9b-200d-4706-a693-0bcac4fc6b08" Version="0.1" Language="en-US" Publisher="Artem Romanenia" />
@@ -6,7 +6,7 @@
     <Description xml:space="preserve">SharpNjector lets you inject bits of C# code into static text files like *.js, *.css, *.txt etc.</Description>
     <MoreInfo>https://github.com/Artem-Romanenia/sharp-njector</MoreInfo>
     <License>LICENSE.txt</License>
-    <Tags>C#, Javascript, Js, injection</Tags>
+    <Tags>.Net, C#, Javascript, Js, injection</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
@@ -16,5 +16,6 @@
   </Dependencies>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
   </Assets>
 </PackageManifest>
