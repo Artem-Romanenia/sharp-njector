@@ -3,20 +3,14 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using SharpNjector.Properties;
-using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Utilities;
 
 namespace SharpNjector.NjectClassifier
 {
-    /// <summary>
-    /// Classifier that classifies all text as an instance of the "NjectClassifier" classification type.
-    /// </summary>
     internal class Classifier : IClassifier
     {
-        private readonly IClassifier _aggregator;
         private readonly IClassificationTypeRegistryService _registry;
 
-        internal Classifier(IClassifier aggregator, IClassificationTypeRegistryService registry)
+        internal Classifier(IClassificationTypeRegistryService registry)
         {
             _registry = registry;
         }

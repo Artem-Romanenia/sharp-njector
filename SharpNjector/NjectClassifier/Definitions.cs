@@ -6,14 +6,15 @@ namespace SharpNjector.NjectClassifier
 {
     internal static class Definitions
     {
+
 #pragma warning disable 169 // This disables "The field is never used" compiler's warning. Justification: the field is used by MEF.
 
         #region Content Types
 
         [Export]
         [Name("NjectorJs")]
-        [BaseDefinition("JavaScript")]
-        private static ContentTypeDefinition njectorContentTypeDefinition;
+        [BaseDefinition("code")]
+        private static ContentTypeDefinition _njectorContentTypeDefinition;
 
         #endregion
 
@@ -22,7 +23,7 @@ namespace SharpNjector.NjectClassifier
         [Export]
         [FileExtension(".snjs")]
         [ContentType("NjectorJs")]
-        private static FileExtensionToContentTypeDefinition njectorFileExtensionDefinition;
+        private static FileExtensionToContentTypeDefinition _njectorFileExtensionDefinition;
 
         #endregion
 
@@ -31,25 +32,26 @@ namespace SharpNjector.NjectClassifier
         [Export]
         [Name("NjectBlock")]
         [BaseDefinition("text")]
-        private static ClassificationTypeDefinition njectBlockDefinition;
+        private static ClassificationTypeDefinition _njectBlockDefinition;
 
         [Export]
         [Name("NjectBlockContent")]
         [BaseDefinition("text")]
-        private static ClassificationTypeDefinition njectBlockContentDefinition;
+        private static ClassificationTypeDefinition _njectBlockContentDefinition;
 
         [Export]
         [Name("NjectUsingBlock")]
         [BaseDefinition("text")]
-        private static ClassificationTypeDefinition njectUsingBlockDefinition;
+        private static ClassificationTypeDefinition _njectUsingBlockDefinition;
 
         [Export]
         [Name("NjectUsingBlockContent")]
         [BaseDefinition("text")]
-        private static ClassificationTypeDefinition njectUsingBlockContentDefinition;
+        private static ClassificationTypeDefinition _njectUsingBlockContentDefinition;
 
         #endregion
 
 #pragma warning restore 169
+
     }
 }

@@ -9,19 +9,11 @@ namespace SharpNjector.NjectClassifier
     [ContentType("NjectorJs")]
     internal class ClassifierProvider : IClassifierProvider
     {
+
 #pragma warning disable 649
 
         [Import]
-        private IClassificationTypeRegistryService classificationRegistry;
-
-        [Import]
-        private IClassifierAggregatorService classifierAggregatorService;
-
-        [Import]
-        internal IContentTypeRegistryService ContentTypeRegistryService;
-
-        [Import]
-        internal IClassificationTypeRegistryService ClassificationTypeRegistryService;
+        private IClassificationTypeRegistryService _classificationRegistry;
 
 #pragma warning restore 649
 
@@ -34,7 +26,7 @@ namespace SharpNjector.NjectClassifier
         /// <returns>A classifier for the text buffer, or null if the provider cannot do so in its current state.</returns>
         public IClassifier GetClassifier(ITextBuffer buffer)
         {
-            return buffer.Properties.GetOrCreateSingletonProperty<Classifier>(creator: () => new Classifier(classifierAggregatorService.GetClassifier(buffer), this.classificationRegistry));
+            return buffer.Properties.GetOrCreateSingletonProperty(() => new Classifier(_classificationRegistry));
         }
 
         #endregion

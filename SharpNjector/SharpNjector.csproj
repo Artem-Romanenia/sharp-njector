@@ -61,6 +61,10 @@
     <Compile Include="NjectClassifier\Definitions.cs" />
     <Compile Include="NjectClassifier\ClassifierFormat.cs" />
     <Compile Include="NjectClassifier\ClassifierProvider.cs" />
+    <Compile Include="NjectClassifier\NjectBlockFormatDefinition.cs" />
+    <Compile Include="NjectClassifier\NjectBlockTag.cs" />
+    <Compile Include="NjectClassifier\NjectBlockTagger.cs" />
+    <Compile Include="NjectClassifier\NjectBlockTaggerProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomTools\SharpNjectorJsCustomTool.cs" />
     <Compile Include="DomainWrapper.cs" />
