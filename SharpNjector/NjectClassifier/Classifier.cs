@@ -32,16 +32,6 @@ namespace SharpNjector.NjectClassifier
                 if (span.End.Position >= i + njectUsingKeywordLength && spanText.Substring(i, njectUsingKeywordLength) == Resources.NjectUsingKeyWord)
                 {
                     result.Add(new ClassificationSpan(new SnapshotSpan(span.Snapshot, new Span(i, njectUsingKeywordLength)), njectBlockClassificationType));
-
-                    //i += njectUsingKeywordLength;
-
-                    //do
-                    //{
-                    //    if (i >= span.End.Position)
-                    //        break;
-
-                    //    if (spanText[i] == '(')
-                    //} while (true);
                 }
                 else if (span.End.Position >= i + njectKeywordLength && spanText.Substring(i, njectKeywordLength) == Resources.NjectKeyWord)
                 {

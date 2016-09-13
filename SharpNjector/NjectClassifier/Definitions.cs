@@ -12,9 +12,15 @@ namespace SharpNjector.NjectClassifier
         #region Content Types
 
         [Export]
+        [Name("NjectorJsHost")]
+        [BaseDefinition("code")]
+        [BaseDefinition("projection")]
+        private static ContentTypeDefinition _njectorJsHostContentTypeDefinition;
+
+        [Export]
         [Name("NjectorJs")]
         [BaseDefinition("code")]
-        private static ContentTypeDefinition _njectorContentTypeDefinition;
+        private static ContentTypeDefinition _njectorJsContentTypeDefinition;
 
         #endregion
 
@@ -22,7 +28,7 @@ namespace SharpNjector.NjectClassifier
 
         [Export]
         [FileExtension(".snjs")]
-        [ContentType("NjectorJs")]
+        [ContentType("NjectorJsHost")]
         private static FileExtensionToContentTypeDefinition _njectorFileExtensionDefinition;
 
         #endregion
