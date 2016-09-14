@@ -64,6 +64,8 @@
     <Compile Include="NjectClassifier\ClassifierProvider.cs" />
     <Compile Include="NjectClassifier\NjectTextViewModelProvider.cs" />
     <Compile Include="NjectClassifier\ProjectionTextViewModel.cs" />
+    <Compile Include="NjectClassifier\Tagger.cs" />
+    <Compile Include="NjectClassifier\TaggerProvider.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CustomTools\SharpNjectorJsCustomTool.cs" />

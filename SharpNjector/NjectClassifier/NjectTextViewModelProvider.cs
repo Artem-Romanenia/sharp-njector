@@ -22,13 +22,23 @@ namespace SharpNjector.NjectClassifier
         {
             var dataSnapshot = dataModel.DataBuffer.CurrentSnapshot;
 
-            var text = dataSnapshot.GetText();
-
             var jsProjectionBuffer = _projectionBufferFactoryService.CreateProjectionBuffer(
                 null,
                 new List<object>(), 
                 ProjectionBufferOptions.None,
                 _contentTypeRegistryService.GetContentType("JavaScript"));
+
+            var njProjectionBuffer = _projectionBufferFactoryService.CreateProjectionBuffer(
+                null,
+                new List<object>(),
+                ProjectionBufferOptions.None,
+                _contentTypeRegistryService.GetContentType("NjectorJs"));
+
+            var csProjectionBuffer = _projectionBufferFactoryService.CreateProjectionBuffer(
+                null,
+                new List<object>(),
+                ProjectionBufferOptions.None,
+                _contentTypeRegistryService.GetContentType("CSharp"));
 
             var projectionBuffer = _projectionBufferFactoryService.CreateProjectionBuffer(
                 null,
@@ -37,10 +47,14 @@ namespace SharpNjector.NjectClassifier
                 _contentTypeRegistryService.GetContentType("NjectorJsHost"));
 
             var jsSpanNo = 0;
+            var njSpanNo = 0;
+            var csSpanNo = 0;
             var spanNo = 0;
-            var accumulatedLength = 0;
+            var jsAccumulatedLength = 0;
+            var njAccumulatedLength = 0;
+            var csAccumulatedLength = 0;
 
-            Parser.Parse(text, (blockType, start, length) =>
+            Parser.Parse(dataSnapshot.GetText(), (blockType, start, length) =>
             {
                 if (length == 0)
                     return;
@@ -48,12 +62,20 @@ namespace SharpNjector.NjectClassifier
                 if (blockType == Parser.BlockType.Text)
                 {
                     jsProjectionBuffer.InsertSpan(jsSpanNo++, dataSnapshot.CreateTrackingSpan(start, length, SpanTrackingMode.EdgeExclusive));
-                    projectionBuffer.InsertSpan(spanNo++, jsProjectionBuffer.CurrentSnapshot.CreateTrackingSpan(accumulatedLength, length, SpanTrackingMode.EdgeExclusive));
-                    accumulatedLength += length;
+                    projectionBuffer.InsertSpan(spanNo++, jsProjectionBuffer.CurrentSnapshot.CreateTrackingSpan(jsAccumulatedLength, length, SpanTrackingMode.EdgeExclusive));
+                    jsAccumulatedLength += length;
+                }
+                else if (blockType == Parser.BlockType.Code)
+                {
+                    csProjectionBuffer.InsertSpan(csSpanNo++, dataSnapshot.CreateTrackingSpan(start, length, SpanTrackingMode.EdgeExclusive));
+                    projectionBuffer.InsertSpan(spanNo++, csProjectionBuffer.CurrentSnapshot.CreateTrackingSpan(csAccumulatedLength, length, SpanTrackingMode.EdgeExclusive));
+                    csAccumulatedLength += length;
                 }
                 else
                 {
-                    projectionBuffer.InsertSpan(spanNo++, dataSnapshot.CreateTrackingSpan(start, length, SpanTrackingMode.EdgeExclusive));
+                    njProjectionBuffer.InsertSpan(njSpanNo++, dataSnapshot.CreateTrackingSpan(start, length, SpanTrackingMode.EdgeExclusive));
+                    projectionBuffer.InsertSpan(spanNo++, njProjectionBuffer.CurrentSnapshot.CreateTrackingSpan(njAccumulatedLength, length, SpanTrackingMode.EdgeExclusive));
+                    njAccumulatedLength += length;
                 }
             });
 

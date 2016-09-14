@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Utilities;
 namespace SharpNjector.NjectClassifier
 {
     [Export(typeof(IClassifierProvider))]
-    [ContentType("NjectorJsHost")]
+    [ContentType("NjectorJs")]
     internal class ClassifierProvider : IClassifierProvider
     {
 
