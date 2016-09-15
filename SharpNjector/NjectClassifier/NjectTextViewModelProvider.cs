@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Projection;
@@ -19,7 +20,7 @@ namespace SharpNjector.NjectClassifier
         private IProjectionBufferFactoryService _projectionBufferFactoryService;
 
         [Import]
-        private ShadowWorkspace _shadowWorkspace;
+        private ShadowWorkspaceWrapper _shadowWorkspace;
 
         public ITextViewModel CreateTextViewModel(ITextDataModel dataModel, ITextViewRoleSet roles)
         {
@@ -45,7 +46,7 @@ namespace SharpNjector.NjectClassifier
 
             var projectionBuffer = _projectionBufferFactoryService.CreateProjectionBuffer(
                 null,
-                new List<object>(), 
+                new List<object>(),
                 ProjectionBufferOptions.None,
                 _contentTypeRegistryService.GetContentType("NjectorJsHost"));
 
@@ -81,6 +82,8 @@ namespace SharpNjector.NjectClassifier
                     njAccumulatedLength += length;
                 }
             });
+
+            _shadowWorkspace.AddDocument(csProjectionBuffer);
 
             return new ProjectionTextViewModel(dataModel, projectionBuffer);
         }
