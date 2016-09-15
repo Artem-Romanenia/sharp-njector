@@ -70,7 +70,7 @@ namespace SharpNjector.CustomTools.Base
             var assemblyPaths = new List<string>();
 
             var project = _dte.SelectedItems.Item(1).ProjectItem.ContainingProject; //Item() is one-based
-            var projectProperties = new Project(project.FileName).Properties;
+            var projectProperties = new Microsoft.Build.Evaluation.Project(project.FileName).Properties;
 
             var path = Path.Combine(
                 projectProperties.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,
@@ -88,7 +88,7 @@ namespace SharpNjector.CustomTools.Base
                 }
                 else
                 {
-                    var referencedProjectProperties = new Project(reference.SourceProject.FileName).Properties;
+                    var referencedProjectProperties = new Microsoft.Build.Evaluation.Project(reference.SourceProject.FileName).Properties;
 
                     var innerPath = Path.Combine(
                             referencedProjectProperties.First(p => p.Name == "MSBuildProjectDirectory").EvaluatedValue,

@@ -18,6 +18,9 @@ namespace SharpNjector.NjectClassifier
         [Import]
         private IProjectionBufferFactoryService _projectionBufferFactoryService;
 
+        [Import]
+        private ShadowWorkspace _shadowWorkspace;
+
         public ITextViewModel CreateTextViewModel(ITextDataModel dataModel, ITextViewRoleSet roles)
         {
             var dataSnapshot = dataModel.DataBuffer.CurrentSnapshot;
